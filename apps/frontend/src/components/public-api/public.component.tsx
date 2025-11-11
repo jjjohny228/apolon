@@ -33,12 +33,12 @@ export const PublicComponent = () => {
       <div className="text-customColor18 mt-[4px]">
         {t(
           'use_postiz_api_to_integrate_with_your_tools',
-          'Use Postiz API to integrate with your tools.'
+          'Use Apostol API to integrate with your tools.'
         )}
         <br />
         <a
           className="underline hover:font-bold hover:underline"
-          href="https://docs.postiz.com/public-api"
+          href=""
           target="_blank"
         >
           {t(

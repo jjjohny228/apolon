@@ -12,7 +12,7 @@ export const PopupContainerContainer: FC = () => {
 
   if (!url) {
     return (
-      <div className="text-4xl">This website is not supported by Postiz</div>
+      <div className="text-4xl">This website is not supported by Apostol</div>
     );
   }
 

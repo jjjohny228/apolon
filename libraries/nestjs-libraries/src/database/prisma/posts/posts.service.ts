@@ -1002,7 +1002,7 @@ export class PostsService {
       orgId,
       getNotificationsForOrgSince.length === 1
         ? subject
-        : '[Postiz] Your latest notifications',
+        : '[Apostol] Your latest notifications',
       message
     );
   }
