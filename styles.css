@@ -1,0 +1,175 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+    line-height: 1.6;
+  }
+  
+  header {
+    background: #111;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    margin: auto;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+  }
+  
+  .nav-links li {
+    margin: 0 15px;
+  }
+  
+  .nav-links a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(to bottom, #000, #222);
+  }
+  
+  .hero h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    animation: fadeIn 2s ease-in-out;
+  }
+  
+  .hero p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background: #fff;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  button:hover {
+    background: #333;
+    color: #fff;
+  }
+  
+  .content-section {
+    padding: 60px 20px;
+    text-align: center;
+  }
+  
+  .features-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .feature-card {
+    background: #111;
+    padding: 20px;
+    border-radius: 5px;
+    width: 300px;
+    text-align: center;
+    transition: 0.3s;
+  }
+  
+  .feature-card:hover {
+    background: #333;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 20px;
+    background: #111;
+    position: relative;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Logo Styles */
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  height: 40px; /* Adjust height as needed */
+  margin-right: 10px;
+}
+
+.logo-text {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Privacy Policy Content Section */
+.privacy-content-section {
+  padding: 20px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #111;
+  color: #ddd;
+  border-radius: 10px;
+}
+
+.privacy-content-section h2 {
+  color: #fff;
+  margin-bottom: 13px;
+  text-align: left;
+}
+
+.privacy-content-section h1 {
+  color: #fff;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.privacy-content-section p {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.privacy-content-section ul {
+  margin-left: 20px;
+  list-style: disc;
+}
+
+.privacy-content-section ul li {
+  margin-bottom: 10px;
+}
