@@ -40,7 +40,8 @@ export async function middleware(request: NextRequest) {
     nextUrl.pathname.startsWith('/p/') ||
     nextUrl.pathname.startsWith('/icons/') ||
     nextUrl.pathname === '/policies' ||
-    nextUrl.pathname === '/terms'
+    nextUrl.pathname === '/terms' ||
+    nextUrl.pathname === '/'
   ) {
     return topResponse;
   }
@@ -66,7 +67,7 @@ export async function middleware(request: NextRequest) {
 
   const org = nextUrl.searchParams.get('org');
   const url = new URL(nextUrl).search;
-  if (nextUrl.href.indexOf('/auth') === -1 && !authCookie) {
+  if (nextUrl.href.indexOf('/auth') === -1 && !authCookie && nextUrl.pathname !== '/') {
     const providers = ['google', 'settings'];
     const findIndex = providers.find((p) => nextUrl.href.indexOf(p) > -1);
     const additional = !findIndex
@@ -135,7 +136,9 @@ export async function middleware(request: NextRequest) {
       }
       return redirect;
     }
-    if (nextUrl.pathname === '/') {
+    // Redirect authenticated users from / to /launches or /analytics
+    // But allow /home to be accessible for everyone
+    if (nextUrl.pathname === '/' && authCookie) {
       return NextResponse.redirect(
         new URL(
           !!process.env.IS_GENERAL ? '/launches' : `/analytics`,
