@@ -40,9 +40,23 @@ export async function middleware(request: NextRequest) {
     nextUrl.pathname.startsWith('/p/') ||
     nextUrl.pathname.startsWith('/icons/') ||
     nextUrl.pathname === '/policies' ||
-    nextUrl.pathname === '/terms' ||
-    nextUrl.pathname === '/'
+    nextUrl.pathname === '/terms'
   ) {
+    return topResponse;
+  }
+  
+  // For home page (/), check if user is authenticated
+  // If authenticated, redirect to /launches or /analytics
+  // If not authenticated, allow access to landing page
+  if (nextUrl.pathname === '/') {
+    if (authCookie) {
+      return NextResponse.redirect(
+        new URL(
+          !!process.env.IS_GENERAL ? '/launches' : `/analytics`,
+          nextUrl.href
+        )
+      );
+    }
     return topResponse;
   }
   // If the URL is logout, delete the cookie and redirect to login
@@ -84,9 +98,14 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // If the url is /auth and the cookie exists, redirect to /
+  // If the url is /auth and the cookie exists, redirect to /launches or /analytics
   if (nextUrl.href.indexOf('/auth') > -1 && authCookie) {
-    return NextResponse.redirect(new URL(`/${url}`, nextUrl.href));
+    return NextResponse.redirect(
+      new URL(
+        (!!process.env.IS_GENERAL ? '/launches' : `/analytics`) + url,
+        nextUrl.href
+      )
+    );
   }
   if (nextUrl.href.indexOf('/auth') > -1 && !authCookie) {
     if (org) {
@@ -136,17 +155,6 @@ export async function middleware(request: NextRequest) {
       }
       return redirect;
     }
-    // Redirect authenticated users from / to /launches or /analytics
-    // But allow /home to be accessible for everyone
-    if (nextUrl.pathname === '/' && authCookie) {
-      return NextResponse.redirect(
-        new URL(
-          !!process.env.IS_GENERAL ? '/launches' : `/analytics`,
-          nextUrl.href
-        )
-      );
-    }
-
     return topResponse;
   } catch (err) {
     console.log('err', err);

@@ -11,7 +11,7 @@ export class McpSettings {
         version: '2.0.0',
       },
       {
-        instructions: `Postiz is a service to schedule social media posts for ${socialIntegrationList
+        instructions: `Apostol is a service to schedule social media posts for ${socialIntegrationList
           .map((p) => p.name)
           .join(
             ', '

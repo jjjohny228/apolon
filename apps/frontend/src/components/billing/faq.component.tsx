@@ -32,9 +32,9 @@ const useFaqList = () => {
       description: t(
         'faq_postiz_gitroom_is_proudly_open_source',
         `${
-          isGeneral ? 'Postiz' : 'Gitroom'
+          isGeneral ? 'Apostol' : 'Gitroom'
         } is proudly open-source! We believe in an ethical and transparent culture, meaning that ${
-          isGeneral ? 'Postiz' : 'Gitroom'
+          isGeneral ? 'Apostol' : 'Gitroom'
         } will live forever. You can check out the entire code or use it for personal projects. To view the open-source repository, <a href="https://github.com/gitroomhq/postiz-app" target="_blank" style="text-decoration: underline;">click here</a>.`
       ),
     },
@@ -43,7 +43,7 @@ const useFaqList = () => {
       description: t(
         'faq_postiz_gitroom_allows_you_to_schedule_posts',
         `${
-          isGeneral ? 'Postiz' : 'Gitroom'
+          isGeneral ? 'Apostol' : 'Gitroom'
         } allows you to schedule your posts between different channels.
 A channel is a publishing platform where you can schedule your posts.
 For example, you can schedule your posts on X, Facebook, Instagram, TikTok, YouTube, Reddit, Linkedin, Dribbble, Threads and Pinterest.`
