@@ -21,8 +21,15 @@ export class AuthService {
     // encryption algorithm
     const algorithm = 'aes-256-cbc';
 
-    // create a cipher object
-    const cipher = crypto.createCipher(algorithm, process.env.JWT_SECRET);
+    // Create a 32-byte key from JWT_SECRET using SHA-256
+    const key = crypto.createHash('sha256').update(process.env.JWT_SECRET!).digest();
+
+    // Create a deterministic IV from JWT_SECRET (first 16 bytes of MD5 hash)
+    // This ensures backward compatibility with existing encrypted data
+    const iv = crypto.createHash('md5').update(process.env.JWT_SECRET!).digest().slice(0, 16);
+
+    // create a cipher object with explicit key and IV
+    const cipher = crypto.createCipheriv(algorithm, key, iv);
 
     // encrypt the plain text
     let encrypted = cipher.update(value, 'utf8', 'hex');
@@ -33,7 +40,16 @@ export class AuthService {
 
   static fixedDecryption(hash: string) {
     const algorithm = 'aes-256-cbc';
-    const decipher = crypto.createDecipher(algorithm, process.env.JWT_SECRET);
+
+    // Create a 32-byte key from JWT_SECRET using SHA-256
+    const key = crypto.createHash('sha256').update(process.env.JWT_SECRET!).digest();
+
+    // Create a deterministic IV from JWT_SECRET (first 16 bytes of MD5 hash)
+    // This ensures backward compatibility with existing encrypted data
+    const iv = crypto.createHash('md5').update(process.env.JWT_SECRET!).digest().slice(0, 16);
+
+    // create a decipher object with explicit key and IV
+    const decipher = crypto.createDecipheriv(algorithm, key, iv);
 
     // decrypt the encrypted text
     let decrypted = decipher.update(hash, 'hex', 'utf8');
