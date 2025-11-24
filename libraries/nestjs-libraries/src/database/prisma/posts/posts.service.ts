@@ -506,14 +506,21 @@ export class PostsService {
       }
 
       try {
+        const isTikTok = integration.providerIdentifier === 'tiktok';
+        const notificationMessage = isTikTok
+          ? `Your post has been published on ${capitalize(
+              integration.providerIdentifier
+            )} at ${publishedPosts[0].releaseURL}. Note: After you finish publishing your content, it may take a few minutes for the content to process.`
+          : `Your post has been published on ${capitalize(
+              integration.providerIdentifier
+            )} at ${publishedPosts[0].releaseURL}`;
+
         await this._notificationService.inAppNotification(
           integration.organizationId,
           `Your post has been published on ${capitalize(
             integration.providerIdentifier
           )}`,
-          `Your post has been published on ${capitalize(
-            integration.providerIdentifier
-          )} at ${publishedPosts[0].releaseURL}`,
+          notificationMessage,
           true,
           true
         );

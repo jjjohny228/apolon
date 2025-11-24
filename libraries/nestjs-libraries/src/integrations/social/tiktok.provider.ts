@@ -126,7 +126,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     if (body.indexOf('spam_risk_too_many_posts') > -1) {
       return {
         type: 'bad-body' as const,
-        value: 'Daily post limit reached, please try again tomorrow',
+        value: 'Cannot make more posts at this moment. Please try again later.',
       };
     }
 
@@ -141,7 +141,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     if (body.indexOf('reached_active_user_cap') > -1) {
       return {
         type: 'bad-body' as const,
-        value: 'Daily active user quota reached, please try again later',
+        value: 'Cannot make more posts at this moment. Please try again later.',
       };
     }
 

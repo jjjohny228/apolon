@@ -95,30 +95,58 @@ const TikTokSettings: FC<{
     return value?.[0].image.some((p) => p.path.indexOf('mp4') === -1);
   }, [value]);
 
+  const isPhoto = useMemo(() => {
+    return value?.[0]?.image?.every((p) => p.path.indexOf('mp4') === -1);
+  }, [value]);
+
   const disclose = watch('disclose');
   const brand_organic_toggle = watch('brand_organic_toggle');
   const brand_content_toggle = watch('brand_content_toggle');
+  const privacy_level = watch('privacy_level');
   const content_posting_method = watch('content_posting_method');
   const isUploadMode = content_posting_method === 'UPLOAD';
+  
+  // Privacy management: if branded content, only public/friends allowed
+  const isBrandedContent = brand_content_toggle === true;
+  const isPrivate = privacy_level === 'SELF_ONLY';
+  const isCommercialContent = disclose === true;
 
-  const privacyLevel = [
-    {
-      value: 'PUBLIC_TO_EVERYONE',
-      label: t('public_to_everyone', 'Public to everyone'),
-    },
-    {
-      value: 'MUTUAL_FOLLOW_FRIENDS',
-      label: t('mutual_follow_friends', 'Mutual follow friends'),
-    },
-    {
-      value: 'FOLLOWER_OF_CREATOR',
-      label: t('follower_of_creator', 'Follower of creator'),
-    },
-    {
-      value: 'SELF_ONLY',
-      label: t('self_only', 'Self only'),
-    },
-  ];
+  const privacyLevel = useMemo(() => {
+    const levels = [
+      {
+        value: 'PUBLIC_TO_EVERYONE',
+        label: t('public_to_everyone', 'Public to everyone'),
+      },
+      {
+        value: 'MUTUAL_FOLLOW_FRIENDS',
+        label: t('mutual_follow_friends', 'Mutual follow friends'),
+      },
+      {
+        value: 'FOLLOWER_OF_CREATOR',
+        label: t('follower_of_creator', 'Follower of creator'),
+      },
+      {
+        value: 'SELF_ONLY',
+        label: t('self_only', 'Self only'),
+      },
+    ];
+    
+    // If branded content is enabled, only allow PUBLIC_TO_EVERYONE or MUTUAL_FOLLOW_FRIENDS
+    if (isBrandedContent) {
+      return levels.filter(
+        (level) =>
+          level.value === 'PUBLIC_TO_EVERYONE' ||
+          level.value === 'MUTUAL_FOLLOW_FRIENDS'
+      );
+    }
+    
+    // If commercial content is enabled (but not branded), disable SELF_ONLY
+    if (isCommercialContent) {
+      return levels.filter((level) => level.value !== 'SELF_ONLY');
+    }
+    
+    return levels;
+  }, [isBrandedContent, isCommercialContent, t]);
   const contentPostingMethod = [
     {
       value: 'DIRECT_POST',
@@ -148,15 +176,13 @@ const TikTokSettings: FC<{
 
   return (
     <div className="flex flex-col">
-      {/*<CheckTikTokValidity picture={props?.values?.[0]?.image?.[0]?.path} />*/}
+      <CheckTikTokValidity picture={props?.values?.[0]?.image?.[0]?.path} />
       {isTitle && <Input label="Title" {...register('title')} maxLength={90} />}
       <Select
         label={t('label_who_can_see_this_video', 'Who can see this video?')}
         hideErrors={true}
         disabled={isUploadMode}
-        {...register('privacy_level', {
-          value: 'PUBLIC_TO_EVERYONE',
-        })}
+        {...register('privacy_level')}
       >
         <option value="">{t('select', 'Select')}</option>
         {privacyLevel.map((item) => (
@@ -165,6 +191,25 @@ const TikTokSettings: FC<{
           </option>
         ))}
       </Select>
+      {isCommercialContent && !isBrandedContent && (
+        <div className="text-[14px] mt-[5px] text-yellow-600" title={t(
+          'branded_content_visibility_cannot_be_private',
+          'Branded content visibility cannot be set to private.'
+        )}>
+          {t(
+            'branded_content_visibility_cannot_be_private',
+            'Branded content visibility cannot be set to private.'
+          )}
+        </div>
+      )}
+      {isBrandedContent && privacy_level && privacy_level !== 'PUBLIC_TO_EVERYONE' && privacy_level !== 'MUTUAL_FOLLOW_FRIENDS' && (
+        <div className="text-[14px] mt-[5px] text-red-600">
+          {t(
+            'branded_content_only_public_or_friends',
+            'Branded content can only be configured with visibility as public or friends.'
+          )}
+        </div>
+      )}
       <div className="text-[14px] mt-[10px] mb-[18px] text-balance">
         {t(
           'choose_upload_without_posting_description',
@@ -215,25 +260,29 @@ const TikTokSettings: FC<{
           variant="hollow"
           disabled={isUploadMode}
           {...register('comment', {
-            value: true,
-          })}
-        />
-        <Checkbox
-          variant="hollow"
-          label={t('label_duet', 'Duet')}
-          disabled={isUploadMode}
-          {...register('duet', {
             value: false,
           })}
         />
-        <Checkbox
-          label={t('label_stitch', 'Stitch')}
-          variant="hollow"
-          disabled={isUploadMode}
-          {...register('stitch', {
-            value: false,
-          })}
-        />
+        {!isPhoto && (
+          <>
+            <Checkbox
+              variant="hollow"
+              label={t('label_duet', 'Duet')}
+              disabled={isUploadMode}
+              {...register('duet', {
+                value: false,
+              })}
+            />
+            <Checkbox
+              label={t('label_stitch', 'Stitch')}
+              variant="hollow"
+              disabled={isUploadMode}
+              {...register('stitch', {
+                value: false,
+              })}
+            />
+          </>
+        )}
       </div>
       <hr className="my-[15px] mb-[25px] border-tableBorder" />
       <div className="flex flex-col gap-[20px]">
@@ -252,7 +301,7 @@ const TikTokSettings: FC<{
             value: false,
           })}
         />
-        {disclose && (
+        {disclose && (brand_organic_toggle || brand_content_toggle) && (
           <div className="bg-tableBorder p-[10px] mt-[10px] rounded-[10px] flex gap-[20px] items-center">
             <div>
               <svg
@@ -269,10 +318,17 @@ const TikTokSettings: FC<{
               </svg>
             </div>
             <div>
-              {t(
-                'your_video_will_be_labeled_promotional',
-                'Your video will be labeled "Promotional Content".'
-              )}
+              {brand_content_toggle
+                ? t(
+                    'your_photo_video_will_be_labeled_paid_partnership',
+                    "Your photo/video will be labeled as 'Paid partnership'."
+                  )
+                : brand_organic_toggle
+                ? t(
+                    'your_photo_video_will_be_labeled_promotional_content',
+                    "Your photo/video will be labeled as 'Promotional content'."
+                  )
+                : ''}
               <br />
               {t(
                 'this_cannot_be_changed_once_posted',
@@ -311,11 +367,19 @@ const TikTokSettings: FC<{
         <Checkbox
           variant="hollow"
           label={t('label_branded_content', 'Branded content')}
-          disabled={isUploadMode}
+          disabled={isUploadMode || isPrivate}
           {...register('brand_content_toggle', {
             value: false,
           })}
         />
+        {isPrivate && (
+          <div className="text-[14px] mt-[5px] text-yellow-600">
+            {t(
+              'branded_content_not_available_for_private_posts',
+              'Branded content is not available for private posts. Please change privacy settings to enable branded content.'
+            )}
+          </div>
+        )}
         <div className="text-balance my-[10px] text-[14px]">
           {t(
             'you_are_promoting_another_brand',
@@ -327,24 +391,22 @@ const TikTokSettings: FC<{
             'This video will be classified as Branded Content.'
           )}
         </div>
-        {(brand_organic_toggle || brand_content_toggle) && (
+        {disclose && !brand_organic_toggle && !brand_content_toggle && (
+          <div className="my-[10px] text-[14px] text-red-600">
+            {t(
+              'you_need_to_indicate_commercial_content',
+              'You need to indicate if your content promotes yourself, a third party, or both.'
+            )}
+          </div>
+        )}
+        {disclose && (brand_organic_toggle || brand_content_toggle) && (
           <div className="my-[10px] text-[14px] text-balance">
             {t(
               'by_posting_you_agree_to_tiktoks',
               "By posting, you agree to TikTok's"
-            )}
-            {[
-              brand_organic_toggle || brand_content_toggle ? (
-                <a
-                  target="_blank"
-                  className="text-[#B69DEC] hover:underline"
-                  href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
-                >
-                  {t('music_usage_confirmation', 'Music Usage Confirmation')}
-                </a>
-              ) : undefined,
-              brand_content_toggle ? <> {t('and', 'and')} </> : undefined,
-              brand_content_toggle ? (
+            )}{' '}
+            {brand_content_toggle ? (
+              <>
                 <a
                   target="_blank"
                   className="text-[#B69DEC] hover:underline"
@@ -352,8 +414,29 @@ const TikTokSettings: FC<{
                 >
                   {t('branded_content_policy', 'Branded Content Policy')}
                 </a>
-              ) : undefined,
-            ].filter((f) => f)}
+                {' '}
+                {t('and', 'and')}{' '}
+                <a
+                  target="_blank"
+                  className="text-[#B69DEC] hover:underline"
+                  href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                >
+                  {t('music_usage_confirmation', 'Music Usage Confirmation')}
+                </a>
+                .
+              </>
+            ) : (
+              <>
+                <a
+                  target="_blank"
+                  className="text-[#B69DEC] hover:underline"
+                  href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+                >
+                  {t('music_usage_confirmation', 'Music Usage Confirmation')}
+                </a>
+                .
+              </>
+            )}
           </div>
         )}
       </div>
@@ -366,7 +449,7 @@ export default withProvider({
   SettingsComponent: TikTokSettings,
   CustomPreviewComponent: undefined,
   dto: TikTokDto,
-  checkValidity: async (items) => {
+  checkValidity: async (items, settings: any) => {
     const [firstItems] = items;
     if (items.length !== 1) {
       return 'Should have one item';
@@ -385,6 +468,30 @@ export default withProvider({
     ) {
       return 'You need one media';
     }
+    
+    // Validate commercial content disclosure
+    if (settings?.disclose === true) {
+      const brandOrganic = settings?.brand_organic_toggle === true;
+      const brandContent = settings?.brand_content_toggle === true;
+      
+      if (!brandOrganic && !brandContent) {
+        return 'You need to indicate if your content promotes yourself, a third party, or both.';
+      }
+      
+      // Validate privacy level for branded content
+      if (brandContent) {
+        const privacyLevel = settings?.privacy_level;
+        if (privacyLevel !== 'PUBLIC_TO_EVERYONE' && privacyLevel !== 'MUTUAL_FOLLOW_FRIENDS') {
+          return 'Branded content can only be configured with visibility as public or friends.';
+        }
+      }
+    }
+    
+    // Validate privacy level is selected
+    if (!settings?.privacy_level) {
+      return 'Please select privacy level.';
+    }
+    
     return true;
   },
   maximumCharacters: 2000,
