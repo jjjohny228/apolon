@@ -28,7 +28,7 @@
 
 ## ❌ НЕ ВЫПОЛНЕНО / ТРЕБУЕТ ДОРАБОТКИ
 
-### 1. Privacy Status - нет значения по умолчанию
+### 1. Privacy Status - нет значения по умолчанию +
 - ❌ **ПРОБЛЕМА**: В строке 158 установлено `value: 'PUBLIC_TO_EVERYONE'`
 - 📍 Нужно убрать значение по умолчанию, оставить только `<option value="">Select</option>`
 
@@ -36,7 +36,7 @@
 - ❌ **ПРОБЛЕМА**: В строке 218 установлено `value: true`
 - 📍 Нужно изменить на `value: false`
 
-### 3. Photo Posts - скрыть Duet и Stitch
+### 3. Photo Posts - скрыть Duet и Stitch +
 - ❌ **НЕ РЕАЛИЗОВАНО**: Для фото-постов должны быть скрыты чекбоксы Duet и Stitch, показываться только Comment
 - 📍 Нужно добавить проверку `isPhoto` и условно скрывать Duet/Stitch:
   ```tsx
@@ -44,7 +44,7 @@
   {!isPhoto && <Checkbox label="Stitch" ... />}
   ```
 
-### 4. Commercial Content - правильные промпты
+### 4. Commercial Content - правильные промпты +
 - ❌ **НЕПОЛНАЯ РЕАЛИЗАЦИЯ**: 
   - Строка 273: Показывается только "Promotional Content" для всех случаев
   - 📍 Нужно добавить условную логику:
@@ -52,37 +52,37 @@
     - Только "Branded Content": "Your photo/video will be labeled as 'Paid partnership'"
     - Оба: "Your photo/video will be labeled as 'Paid partnership'"
 
-### 5. Commercial Content - валидация выбора
+### 5. Commercial Content - валидация выбора +
 - ❌ **НЕ РЕАЛИЗОВАНО**: Если `disclose = true`, но не выбрано ни "Your Brand", ни "Branded Content", нужно:
   - Показывать ошибку: "You need to indicate if your content promotes yourself, a third party, or both."
   - Блокировать кнопку публикации
 - 📍 Нужно добавить валидацию в `checkValidity` или в форму
 
-### 6. Privacy Management - Branded Content ограничения
+### 6. Privacy Management - Branded Content ограничения +- (не disabled)
 - ❌ **НЕ РЕАЛИЗОВАНО**: 
   - Если выбрано "Branded Content", privacy_level должен быть только `PUBLIC_TO_EVERYONE` или `MUTUAL_FOLLOW_FRIENDS`
   - Если выбран `SELF_ONLY` (private), "Branded Content" должен быть disabled + показать сообщение
   - Если включен commercial content, "SELF_ONLY" должен быть disabled с tooltip: "Branded content visibility cannot be set to private."
 - 📍 Нужно добавить условную логику для `privacyLevel` и `brand_content_toggle`
 
-### 7. Compliance requirements - правильные тексты
+### 7. Compliance requirements - правильные тексты +
 - ❌ **НЕПОЛНАЯ РЕАЛИЗАЦИЯ**: В строках 330-358 логика неполная
 - 📍 Нужно исправить:
   - Только "Your Brand": "By posting, you agree to TikTok's Music Usage Confirmation."
   - Только "Branded Content": "By posting, you agree to TikTok's Branded Content Policy and Music Usage Confirmation."
   - Оба: "By posting, you agree to TikTok's Branded Content Policy and Music Usage Confirmation."
 
-### 8. Проверка длительности видео
+### 8. Проверка длительности видео - (только в уведомленях показывается An error occurred while posting on tiktok)
 - ❌ **ЗАКОММЕНТИРОВАНО**: Компонент `CheckTikTokValidity` закомментирован (строка 151)
 - 📍 Нужно раскомментировать и убедиться, что проверка работает
 
-### 9. Content Preview
+### 9. Content Preview +
 - ✅ **РЕАЛИЗОВАНО**: Используется `GeneralPreviewComponent` по умолчанию (строка 367: `CustomPreviewComponent: undefined`). В `high.order.provider.tsx` (строки 320-332) показывается `GeneralPreviewComponent`, если `CustomPreviewComponent` не определен.
 
-### 10. Upload video after post button
+### 10. Upload video after post button +
 - ✅ **РЕАЛИЗОВАНО**: Метод `post()` в `tiktok.provider.ts` вызывается только при публикации поста через API. Видео загружается через `PULL_FROM_URL` только после нажатия кнопки публикации.
 
-### 11. Уведомление о processing
+### 11. Уведомление о processing - 
 - ❌ **НЕ НАЙДЕНО**: Нет уведомления "after they finish publishing their content, it may take a few minutes for the content to process"
 - 📍 Нужно добавить уведомление после успешной публикации
 
@@ -98,10 +98,10 @@
 ## 📋 ПРИОРИТЕТНЫЙ СПИСОК ДОРАБОТОК
 
 ### Критичные (требования API):
-1. ✅ Убрать default value для Privacy Status
-2. ✅ Изменить Comment default на `false`
-3. ✅ Добавить проверку длительности видео (раскомментировать)
-4. ✅ Скрыть Duet/Stitch для фото-постов
+1. ✅ Убрать default value для Privacy Status +
+2. ✅ Изменить Comment default на `false` +
+3. ✅ Добавить проверку длительности видео (раскомментировать) 
+4. ✅ Скрыть Duet/Stitch для фото-постов +
 5. ✅ Добавить валидацию выбора commercial content
 6. ✅ Реализовать Privacy Management для Branded Content
 7. ✅ Исправить тексты промптов для commercial content

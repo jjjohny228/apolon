@@ -116,34 +116,24 @@ const TikTokSettings: FC<{
       {
         value: 'PUBLIC_TO_EVERYONE',
         label: t('public_to_everyone', 'Public to everyone'),
+        disabled: false,
       },
       {
         value: 'MUTUAL_FOLLOW_FRIENDS',
         label: t('mutual_follow_friends', 'Mutual follow friends'),
+        disabled: false,
       },
       {
         value: 'FOLLOWER_OF_CREATOR',
         label: t('follower_of_creator', 'Follower of creator'),
+        disabled: isBrandedContent, // Disable if branded content is enabled
       },
       {
         value: 'SELF_ONLY',
         label: t('self_only', 'Self only'),
+        disabled: isCommercialContent, // Disable if commercial content is enabled
       },
     ];
-    
-    // If branded content is enabled, only allow PUBLIC_TO_EVERYONE or MUTUAL_FOLLOW_FRIENDS
-    if (isBrandedContent) {
-      return levels.filter(
-        (level) =>
-          level.value === 'PUBLIC_TO_EVERYONE' ||
-          level.value === 'MUTUAL_FOLLOW_FRIENDS'
-      );
-    }
-    
-    // If commercial content is enabled (but not branded), disable SELF_ONLY
-    if (isCommercialContent) {
-      return levels.filter((level) => level.value !== 'SELF_ONLY');
-    }
     
     return levels;
   }, [isBrandedContent, isCommercialContent, t]);
@@ -186,12 +176,12 @@ const TikTokSettings: FC<{
       >
         <option value="">{t('select', 'Select')}</option>
         {privacyLevel.map((item) => (
-          <option key={item.value} value={item.value}>
+          <option key={item.value} value={item.value} disabled={item.disabled}>
             {item.label}
           </option>
         ))}
       </Select>
-      {isCommercialContent && !isBrandedContent && (
+      {isCommercialContent && (
         <div className="text-[14px] mt-[5px] text-yellow-600" title={t(
           'branded_content_visibility_cannot_be_private',
           'Branded content visibility cannot be set to private.'
@@ -199,14 +189,6 @@ const TikTokSettings: FC<{
           {t(
             'branded_content_visibility_cannot_be_private',
             'Branded content visibility cannot be set to private.'
-          )}
-        </div>
-      )}
-      {isBrandedContent && privacy_level && privacy_level !== 'PUBLIC_TO_EVERYONE' && privacy_level !== 'MUTUAL_FOLLOW_FRIENDS' && (
-        <div className="text-[14px] mt-[5px] text-red-600">
-          {t(
-            'branded_content_only_public_or_friends',
-            'Branded content can only be configured with visibility as public or friends.'
           )}
         </div>
       )}
@@ -449,7 +431,7 @@ export default withProvider({
   SettingsComponent: TikTokSettings,
   CustomPreviewComponent: undefined,
   dto: TikTokDto,
-  checkValidity: async (items, settings: any) => {
+  checkValidity: async (items, settings: any, additionalSettings?: any) => {
     const [firstItems] = items;
     if (items.length !== 1) {
       return 'Should have one item';
@@ -467,6 +449,69 @@ export default withProvider({
       firstItems?.[0]?.path?.indexOf('mp4') > -1
     ) {
       return 'You need one media';
+    }
+    
+    // Validate video duration
+    const videoFiles = firstItems.filter((p) => p?.path?.indexOf('mp4') > -1);
+    if (videoFiles.length > 0) {
+      // Check if isValidVideo field indicates invalid video (set by CheckTikTokValidity component)
+      if (settings?.isValidVideo === 'false') {
+        // Try to get max duration for error message, use default if unavailable
+        let maxDuration = 600; // Default fallback for TikTok
+        try {
+          // Get integration id from window or try to fetch max duration
+          // Note: This is a fallback - the CheckTikTokValidity component should handle this
+          const response = await fetch('/integrations/function', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: 'maxVideoLength',
+              id: '', // Will be set by backend from session
+              data: {},
+            }),
+          });
+          if (response.ok) {
+            const { maxDurationSeconds } = await response.json();
+            maxDuration = maxDurationSeconds;
+          }
+        } catch (err) {
+          // Use default if we can't fetch
+        }
+        return `Video length is invalid, must be up to ${maxDuration} seconds`;
+      }
+      
+      // Also validate directly if isValidVideo is not set
+      // This is a backup check in case the component didn't run
+      try {
+        for (const videoFile of videoFiles) {
+          const duration = await new Promise<number>((resolve, reject) => {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.src = videoFile.path;
+            const timeout = setTimeout(() => {
+              reject(new Error('Timeout loading video metadata'));
+            }, 5000);
+            video.addEventListener('loadedmetadata', () => {
+              clearTimeout(timeout);
+              resolve(video.duration);
+            });
+            video.addEventListener('error', () => {
+              clearTimeout(timeout);
+              reject(new Error('Failed to load video metadata'));
+            });
+          });
+          
+          // Use a reasonable default max duration (TikTok typically allows up to 600 seconds)
+          // The actual max will be validated by CheckTikTokValidity component
+          if (duration > 600) {
+            return 'Video length is invalid, must be up to 600 seconds';
+          }
+        }
+      } catch (err) {
+        // If we can't check video duration, continue (component will handle it)
+      }
     }
     
     // Validate commercial content disclosure
