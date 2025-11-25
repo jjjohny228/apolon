@@ -110,6 +110,8 @@ const TikTokSettings: FC<{
   const isBrandedContent = brand_content_toggle === true;
   const isPrivate = privacy_level === 'SELF_ONLY';
   const isCommercialContent = disclose === true;
+  // SELF_ONLY should be disabled only when commercial content is enabled AND branded content is checked
+  const shouldDisableSelfOnly = isCommercialContent && isBrandedContent;
 
   const privacyLevel = useMemo(() => {
     const levels = [
@@ -131,12 +133,12 @@ const TikTokSettings: FC<{
       {
         value: 'SELF_ONLY',
         label: t('self_only', 'Self only'),
-        disabled: isCommercialContent, // Disable if commercial content is enabled
+        disabled: shouldDisableSelfOnly, // Disable if commercial content is enabled AND branded content is checked
       },
     ];
     
     return levels;
-  }, [isBrandedContent, isCommercialContent, t]);
+  }, [isBrandedContent, shouldDisableSelfOnly, t]);
   const contentPostingMethod = [
     {
       value: 'DIRECT_POST',
@@ -181,11 +183,14 @@ const TikTokSettings: FC<{
           </option>
         ))}
       </Select>
-      {isCommercialContent && (
-        <div className="text-[14px] mt-[5px] text-yellow-600" title={t(
-          'branded_content_visibility_cannot_be_private',
-          'Branded content visibility cannot be set to private.'
-        )}>
+      {shouldDisableSelfOnly && (
+        <div
+          className="text-[14px] mt-[5px] text-yellow-600"
+          title={t(
+            'branded_content_visibility_cannot_be_private',
+            'Branded content visibility cannot be set to private.'
+          )}
+        >
           {t(
             'branded_content_visibility_cannot_be_private',
             'Branded content visibility cannot be set to private.'
@@ -421,6 +426,23 @@ const TikTokSettings: FC<{
             )}
           </div>
         )}
+      </div>
+      {/* Declaration before publish button - always shown for TikTok */}
+      <div className="mt-[20px] pt-[20px] border-t border-tableBorder">
+        <div className="text-[14px] text-balance">
+          {t(
+            'by_posting_you_agree_to_tiktok_music_usage',
+            "By posting, you agree to TikTok's"
+          )}{' '}
+          <a
+            target="_blank"
+            className="text-[#B69DEC] hover:underline"
+            href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
+          >
+            {t('music_usage_confirmation', 'Music Usage Confirmation')}
+          </a>
+          .
+        </div>
       </div>
     </div>
   );
