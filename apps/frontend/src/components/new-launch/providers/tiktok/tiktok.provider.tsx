@@ -107,6 +107,8 @@ const TikTokSettings: FC<{
   const isUploadMode = content_posting_method === 'UPLOAD';
   
   // Privacy management: if branded content, only public/friends allowed
+  // Only disable FOLLOWER_OF_CREATOR when branded content checkbox is explicitly checked
+  // Handle undefined/null/false as false to prevent always-disabled state
   const isBrandedContent = brand_content_toggle === true;
   const isPrivate = privacy_level === 'SELF_ONLY';
   const isCommercialContent = disclose === true;
@@ -128,7 +130,7 @@ const TikTokSettings: FC<{
       {
         value: 'FOLLOWER_OF_CREATOR',
         label: t('follower_of_creator', 'Follower of creator'),
-        disabled: isBrandedContent, // Disable if branded content is enabled
+        disabled: false, // Never disabled
       },
       {
         value: 'SELF_ONLY',
