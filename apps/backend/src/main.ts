@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import express from 'express';
 
 import { initializeSentry } from '@gitroom/nestjs-libraries/sentry/initialize.sentry';
 initializeSentry('backend', true);
@@ -17,6 +18,7 @@ import { ConfigurationChecker } from '@gitroom/helpers/configuration/configurati
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     rawBody: true,
+    bodyParser: true,
     cors: {
       ...(!process.env.NOT_SECURED ? { credentials: true } : {}),
       exposedHeaders: [
@@ -31,6 +33,10 @@ async function bootstrap() {
       ],
     },
   });
+
+  const expressInstance = app.getHttpAdapter().getInstance();
+  expressInstance.use(express.json({ limit: '2gb' }));
+  expressInstance.use(express.urlencoded({ limit: '2gb', extended: true }));
 
   app.useGlobalPipes(
     new ValidationPipe({
