@@ -38,7 +38,7 @@ export const GoogleProvider = () => {
           />
         </svg>
       </div>
-      <div>{t('continue_with_google', 'Continue with Google')}</div>
+      <div className="block xs:hidden">Google</div>
     </div>
   );
 };

@@ -18,7 +18,7 @@ export const WalletUiProvider: FC = () => {
           fill="#fff"
         />
       </svg>
-      {t('continue_with_your_wallet', 'Continue with your Wallet')}
+      <div className="block xs:hidden">Wallet</div>
     </div>
   );
 };

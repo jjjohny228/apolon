@@ -48,7 +48,7 @@ export const ButtonCaster: FC<{
               fill="white"
             />
           </svg>
-          <div>{t('continue_with_farcaster', 'Continue with Farcaster')}</div>
+          <div className="block xs:hidden">Farcaster</div>
         </div>
       </NeynarAuthButton>
     </NeynarContextProvider>
