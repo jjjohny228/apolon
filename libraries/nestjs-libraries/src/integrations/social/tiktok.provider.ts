@@ -466,10 +466,17 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
                     disable_comment: !firstPost.settings.comment || false,
                     disable_stitch: !firstPost.settings.stitch || false,
                     is_aigc: firstPost.settings.video_made_with_ai || false,
-                    brand_content_toggle:
-                      firstPost.settings.brand_content_toggle || false,
-                    brand_organic_toggle:
-                      firstPost.settings.brand_organic_toggle || false,
+                    ...(firstPost.settings.disclose === true
+                      ? {
+                          brand_content_toggle:
+                            firstPost.settings.brand_content_toggle || false,
+                          brand_organic_toggle:
+                            firstPost.settings.brand_organic_toggle || false,
+                        }
+                      : {
+                          brand_content_toggle: false,
+                          brand_organic_toggle: false,
+                        }),
                     ...((firstPost?.media?.[0]?.path?.indexOf('mp4') || -1) ===
                     -1
                       ? {
